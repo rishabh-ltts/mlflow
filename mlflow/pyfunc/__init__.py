@@ -18,16 +18,16 @@ using frameworks and inference logic that may not be natively included in MLflow
 Inference API
 *************
 
-Python function models are loaded as an instance of :py:class:`PyFuncModel
-<mlflow.pyfunc.PyFuncModel>`, which is an MLflow wrapper around the model implementation and model
+Python function models are loaded as an instance of :py:class:`PyfuncModel
+<mlflow.pyfunc.PyfuncModel>`, which is an MLflow wrapper around the model implementation and model
 metadata (MLmodel file). You can score the model by calling the :py:func:`predict()
-<mlflow.pyfunc.PyFuncModel.predict>` method, which has the following signature::
+<mlflow.pyfunc.PyfuncModel.predict>` method, which has the following signature::
 
   predict(
     model_input: [pandas.DataFrame, Dict[str, numpy.ndarray], numpy.ndarray]
   ) -> [numpy.ndarray | pandas.(Series | DataFrame)]
 
-All PyFunc models will support `pandas.DataFrame` as input and DL PyFunc models will also support
+All Pyfunc models will support `pandas.DataFrame` as input and DL Pyfunc models will also support
 tensor inputs in the form of Dict[str, numpy.ndarray] (named tensors) and `numpy.ndarrays`
 (unnamed tensors).
 
@@ -259,8 +259,8 @@ ENV = "env"
 PY_VERSION = "python_version"
 
 _logger = logging.getLogger(__name__)
-PyFuncInput = Union[pandas.DataFrame, np.ndarray, List[Any], Dict[str, Any]]
-PyFuncOutput = Union[pandas.DataFrame, pandas.Series, np.ndarray, list]
+PyfuncInput = Union[pandas.DataFrame, np.ndarray, List[Any], Dict[str, Any]]
+PyfuncOutput = Union[pandas.DataFrame, pandas.Series, np.ndarray, list]
 
 
 def add_to_model(model, loader_module, data=None, code=None, env=None, **kwargs):
@@ -442,7 +442,7 @@ def _enforce_tensor_spec(values: np.ndarray, tensor_spec: TensorSpec):
     return values
 
 
-def _enforce_col_schema(pfInput: PyFuncInput, input_schema: Schema):
+def _enforce_col_schema(pfInput: PyfuncInput, input_schema: Schema):
     """Enforce the input columns conform to the model's column-based signature."""
     if input_schema.has_input_names():
         input_names = input_schema.input_names()
@@ -455,7 +455,7 @@ def _enforce_col_schema(pfInput: PyFuncInput, input_schema: Schema):
     return new_pfInput
 
 
-def _enforce_tensor_schema(pfInput: PyFuncInput, input_schema: Schema):
+def _enforce_tensor_schema(pfInput: PyfuncInput, input_schema: Schema):
     """Enforce the input tensor(s) conforms to the model's tensor-based signature."""
     if input_schema.has_input_names():
         if isinstance(pfInput, dict):
@@ -496,7 +496,7 @@ def _enforce_tensor_schema(pfInput: PyFuncInput, input_schema: Schema):
     return new_pfInput
 
 
-def _enforce_schema(pfInput: PyFuncInput, input_schema: Schema):
+def _enforce_schema(pfInput: PyfuncInput, input_schema: Schema):
     """
     Enforces the provided input matches the model's input schema,
 
@@ -566,7 +566,7 @@ def _enforce_schema(pfInput: PyFuncInput, input_schema: Schema):
     )
 
 
-class PyFuncModel(object):
+class PyfuncModel(object):
     """
     MLflow 'python function' model.
 
@@ -589,7 +589,9 @@ class PyFuncModel(object):
         self._model_meta = model_meta
         self._model_impl = model_impl
 
-    def predict(self, data: PyFuncInput) -> PyFuncOutput:
+    def predict(self, data: Pyfun
+cInput) -> Pyfun
+cOutput:
         """
         Generate model predictions.
 
@@ -628,7 +630,7 @@ class PyFuncModel(object):
         return yaml.safe_dump({"mlflow.pyfunc.loaded_model": info}, default_flow_style=False)
 
 
-def load_model(model_uri: str, suppress_warnings: bool = True) -> PyFuncModel:
+def load_model(model_uri: str, suppress_warnings: bool = True) -> PyfuncModel:
     """
     Load a model stored in Python function format.
 
@@ -665,7 +667,8 @@ def load_model(model_uri: str, suppress_warnings: bool = True) -> PyFuncModel:
         mlflow.pyfunc.utils._add_code_to_system_path(code_path=code_path)
     data_path = os.path.join(local_path, conf[DATA]) if (DATA in conf) else local_path
     model_impl = importlib.import_module(conf[MAIN])._load_pyfunc(data_path)
-    return PyFuncModel(model_meta=model_meta, model_impl=model_impl)
+    return Pyfun
+cModel(model_meta=model_meta, model_impl=model_impl)
 
 
 @deprecated("mlflow.pyfunc.load_model", 1.0)
